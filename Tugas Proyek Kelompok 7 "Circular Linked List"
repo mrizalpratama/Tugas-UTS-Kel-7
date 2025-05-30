@@ -1,0 +1,176 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+struct Node {
+    string namaPanjang;
+    string NIM;
+    int shift;
+    Node* next;
+};
+
+Node* head = nullptr;
+
+// Tambah mahasiswa di akhir rotasi
+void tambahMahasiswa(string namaPanjang, string NIM) {
+    Node* nodeBaru = new Node;
+    nodeBaru->namaPanjang = namaPanjang;
+    nodeBaru->NIM = NIM;
+    nodeBaru->next = nullptr;
+
+    if (head == nullptr) {
+        nodeBaru->shift = 1;
+        nodeBaru->next = nodeBaru;
+        head = nodeBaru;
+    } else {
+        Node* temp = head;
+        int nomorShift = 2;
+        while (temp->next != head) {
+            temp = temp->next;
+            nomorShift++;
+        }
+        nodeBaru->shift = nomorShift;
+        temp->next = nodeBaru;
+        nodeBaru->next = head;
+    }
+
+    cout << "Mahasiswa ditambahkan dengan shift ke-" << nodeBaru->shift << endl;
+}
+
+// Hapus mahasiswa berdasarkan NIM
+void hapusMahasiswa(string nimHapus) {
+    if (head == nullptr) {
+        cout << "Rotasi kosong.\n";
+        return;
+    }
+
+    Node* curr = head;
+    Node* prev = nullptr;
+
+    // hapus head
+    if (head->NIM == nimHapus) {
+        if (head->next == head) {
+            delete head;
+            head = nullptr;
+        } else {
+            Node* tail = head;
+            while (tail->next != head)
+                tail = tail->next;
+            Node* temp = head;
+            head = head->next;
+            tail->next = head;
+            delete temp;
+        }
+        cout << "Mahasiswa dengan NIM " << nimHapus << " berhasil dihapus.\n";
+        return;
+    }
+
+    // Hapus node selain head
+    do {
+        prev = curr;
+        curr = curr->next;
+        if (curr->NIM == nimHapus) {
+            prev->next = curr->next;
+            delete curr;
+            cout << "Mahasiswa dengan NIM " << nimHapus << " berhasil dihapus.\n";
+            return;
+        }
+    } while (curr != head);
+
+    cout << "Mahasiswa dengan NIM tersebut tidak ditemukan.\n";
+}
+
+// Tampilkan seluruh rotasi
+void tampilkanRotasi() {
+    if (head == nullptr) {
+        cout << "Rotasi kosong.\n";
+        return;
+    }
+
+    Node* temp = head;
+    cout << "\n--- URUTAN ROTASI ---\n";
+    do {
+        cout << "Shift " << temp->shift << ": " << temp->namaPanjang << " (" << temp->NIM << ")\n";
+        temp = temp->next;
+    } while (temp != head);
+}
+
+// Simulasi rotasi
+void simulasiRotasi(string nimAwal, int jumlahShift) {
+    if (head == nullptr) {
+        cout << "Rotasi kosong.\n";
+        return;
+    }
+
+    Node* temp = head;
+    bool ditemukan = false;
+    do {
+        if (temp->NIM == nimAwal) {
+            ditemukan = true;
+            break;
+        }
+        temp = temp->next;
+    } while (temp != head);
+
+    if (!ditemukan) {
+        cout << "NIM tidak ditemukan.\n";
+        return;
+    }
+
+    for (int i = 0; i < jumlahShift; i++) {
+        temp = temp->next;
+    }
+
+    cout << jumlahShift << " shift setelah " << nimAwal << ": "
+         << temp->namaPanjang << " (" << temp->NIM << "), Shift ke-" << temp->shift << endl;
+}
+
+int main() {
+    int pilihan;
+    string namaPanjang, nim, nimCari;
+    int jumlahShift;
+
+    do {
+        cout << "\n--- MENU ROTASI PENJAGA ---\n";
+        cout << "1. Tambah Mahasiswa\n";
+        cout << "2. Hapus Mahasiswa\n";
+        cout << "3. Tampilkan Rotasi\n";
+        cout << "4. Simulasi Rotasi\n";
+        cout << "5. Keluar\n";
+        cout << "Pilih: ";
+        cin >> pilihan;
+        cin.ignore();
+
+        switch (pilihan) {
+            case 1:
+                cout << "namaPanjang: ";
+                getline(cin >> ws, namaPanjang);
+                cout << "NIM: ";
+                cin >> nim;
+                tambahMahasiswa(namaPanjang, nim);
+                break;
+            case 2:
+                cout << "Masukkan NIM yang ingin dihapus: ";
+                getline(cin >> ws, nimCari);
+                hapusMahasiswa(nimCari);
+                break;
+            case 3:
+                tampilkanRotasi();
+                break;
+            case 4:
+                cout << "Masukkan NIM awal: ";
+                getline(cin >> ws, nim);
+                cout << "Masukkan jumlah shift ke depan: ";
+                cin >> jumlahShift;
+                simulasiRotasi(nim, jumlahShift);
+                break;
+            case 5:
+                cout << "Keluar dari program.\n";
+                break;
+            default:
+                cout << "Pilihan tidak valid.\n";
+        }
+    } while (pilihan != 5);
+
+    return 0;
+}
